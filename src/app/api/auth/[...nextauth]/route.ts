@@ -5,17 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserByEmail, verifyPassword } from "@/lib/users";
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "@/lib/rateLimit";
 
-export const authOptions: NextAuthOptions = {
-    providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        }),
-        GitHubProvider({
-            clientId: process.env.GITHUB_CLIENT_ID as string,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-        }),
-        CredentialsProvider({
+const providers = [
+    CredentialsProvider({
             name: "Credentials",
             credentials: {
                 email: { label: "Email", type: "email" },
@@ -61,7 +52,27 @@ export const authOptions: NextAuthOptions = {
                 };
             }
         }),
-    ],
+];
+
+// Add Google provider only if credentials are provided
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.unshift(GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }));
+}
+
+// Add GitHub provider only if credentials are provided
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+    providers.unshift(GitHubProvider({
+        clientId: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }));
+}
+
+export const authOptions: NextAuthOptions = {
+    providers,
+    secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: '/signIn',
     },

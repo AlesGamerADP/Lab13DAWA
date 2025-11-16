@@ -128,3 +128,25 @@ src/
 ## Datos
 
 Los datos de usuarios se almacenan en `data/users.json` y el rate limiting en `data/rateLimit.json`. Estos archivos se crean automáticamente cuando se ejecuta la aplicación por primera vez.
+
+## Despliegue en Vercel
+
+1. Conecta tu repositorio de GitHub con Vercel
+
+2. En la configuración del proyecto en Vercel, agrega las siguientes variables de entorno:
+   - `NEXTAUTH_URL` - Tu URL de producción (ej: https://tu-app.vercel.app)
+   - `NEXTAUTH_SECRET` - Genera uno nuevo con: `openssl rand -base64 32`
+   - `GOOGLE_CLIENT_ID` - Tu Google Client ID
+   - `GOOGLE_CLIENT_SECRET` - Tu Google Client Secret
+   - `GITHUB_CLIENT_ID` - Tu GitHub Client ID
+   - `GITHUB_CLIENT_SECRET` - Tu GitHub Client Secret
+
+3. Actualiza las URLs de redirección en tus aplicaciones OAuth:
+   - Google: `https://tu-app.vercel.app/api/auth/callback/google`
+   - GitHub: `https://tu-app.vercel.app/api/auth/callback/github`
+
+4. Vercel detectará automáticamente Next.js y ejecutará el build
+
+5. Si el build falla, verifica que todas las variables de entorno estén configuradas correctamente
+
+Nota: En Vercel, los archivos del sistema de archivos son temporales. La carpeta `data/` se creará en cada ejecución del servidor.

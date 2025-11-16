@@ -4,8 +4,15 @@ import "./globals.css";
 import Provider from "@/app/components/SessionProvider";
 import Navigation from "@/app/components/Navigation";
 
-const geistSans = Geist({});
-const geistMono = Geist_Mono({});
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Next Auth App",
