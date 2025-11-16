@@ -13,9 +13,30 @@ export interface User {
 }
 
 function ensureDataDirectory() {
-    const dataDir = path.join(process.cwd(), 'data');
-    if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
+    try {
+        const dataDir = path.join(process.cwd(), 'data');
+        console.log('[Users] ensureDataDirectory - Directorio:', dataDir);
+        console.log('[Users] process.cwd():', process.cwd());
+        console.log('[Users] Directorio existe?', fs.existsSync(dataDir));
+        
+        if (!fs.existsSync(dataDir)) {
+            console.log('[Users] Creando directorio data...');
+            fs.mkdirSync(dataDir, { recursive: true });
+            console.log('[Users] ✅ Directorio creado exitosamente');
+        } else {
+            console.log('[Users] ✅ Directorio ya existe');
+        }
+        
+        const stats = fs.statSync(dataDir);
+        console.log('[Users] Stats del directorio:', {
+            isDirectory: stats.isDirectory(),
+            mode: stats.mode
+        });
+    } catch (error: any) {
+        console.error('[Users] ❌ Error en ensureDataDirectory:', error);
+        console.error('[Users] Error message:', error?.message);
+        console.error('[Users] Error code:', error?.code);
+        throw error;
     }
 }
 
@@ -35,14 +56,33 @@ function readUsers(): User[] {
 
 function writeUsers(users: User[]): void {
     try {
+        console.log('[Users] writeUsers - Iniciando escritura');
+        console.log('[Users] Número de usuarios a escribir:', users.length);
         ensureDataDirectory();
-        console.log('[Users] Intentando escribir en:', USERS_FILE);
-        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-        console.log('[Users] Archivo escrito exitosamente');
+        
+        console.log('[Users] Ruta del archivo:', USERS_FILE);
+        console.log('[Users] Archivo existe?', fs.existsSync(USERS_FILE));
+        console.log('[Users] Directorio es escribible?', fs.accessSync ? 'checking...' : 'no check');
+        
+        const jsonData = JSON.stringify(users, null, 2);
+        console.log('[Users] Tamaño del JSON:', jsonData.length, 'caracteres');
+        
+        console.log('[Users] Escribiendo archivo...');
+        fs.writeFileSync(USERS_FILE, jsonData);
+        console.log('[Users] ✅ Archivo escrito exitosamente');
+        
+        const stats = fs.statSync(USERS_FILE);
+        console.log('[Users] Archivo creado - Tamaño:', stats.size, 'bytes');
     } catch (error: any) {
-        console.error('[Users] Error escribiendo archivo:', error);
+        console.error('[Users] ❌ Error escribiendo archivo');
+        console.error('[Users] Error completo:', error);
+        console.error('[Users] Error type:', typeof error);
+        console.error('[Users] Error name:', error?.name);
         console.error('[Users] Error message:', error?.message);
         console.error('[Users] Error code:', error?.code);
+        console.error('[Users] Error errno:', error?.errno);
+        console.error('[Users] Error syscall:', error?.syscall);
+        console.error('[Users] Error path:', error?.path);
         throw new Error(`Error writing users file: ${error?.message || 'Unknown error'}`);
     }
 }
