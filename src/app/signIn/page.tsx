@@ -59,12 +59,11 @@ function SignInForm() {
         try {
             const result = await signIn('google', {
                 callbackUrl: '/dashboard',
-                redirect: true, // Cambiar a true para OAuth - redirect debe ser true
+                redirect: true,
             });
 
             console.log('[Client] Google signIn result:', result);
             
-            // Si redirect es true, esto no se ejecutará porque redirigirá automáticamente
             if (result?.error) {
                 console.error('[Client] Google signIn error:', result.error);
                 setError(`Error al iniciar sesión con Google: ${result.error}`);
@@ -119,7 +118,7 @@ function SignInForm() {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-black"
                         />
                     </div>
 
@@ -134,7 +133,7 @@ function SignInForm() {
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-black"
                         />
                     </div>
 

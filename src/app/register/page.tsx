@@ -28,7 +28,6 @@ export default function RegisterPage() {
         setError('');
         setLoading(true);
 
-        // Validation
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             setLoading(false);
@@ -62,7 +61,6 @@ export default function RegisterPage() {
                 return;
             }
 
-            // Registration successful, redirect to sign in
             router.push('/signIn?registered=true');
         } catch (error) {
             console.error('Registration error:', error);
@@ -96,7 +94,7 @@ export default function RegisterPage() {
                             value={formData.name}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-black"
                         />
                     </div>
 
@@ -111,7 +109,7 @@ export default function RegisterPage() {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-black"
                         />
                     </div>
 
@@ -127,7 +125,7 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             required
                             minLength={6}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-black"
                         />
                     </div>
 
@@ -143,7 +141,7 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             required
                             minLength={6}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-black"
                         />
                     </div>
 
