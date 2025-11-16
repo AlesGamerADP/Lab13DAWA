@@ -62,8 +62,7 @@ export default function RegisterPage() {
             }
 
             router.push('/signIn?registered=true');
-        } catch (error) {
-            console.error('Registration error:', error);
+        } catch {
             setError('An error occurred during registration');
             setLoading(false);
         }

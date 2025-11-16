@@ -16,14 +16,9 @@ interface RateLimitEntry {
 }
 
 function ensureDataDirectory() {
-    try {
-        const dataDir = getDataDir();
-        if (!fs.existsSync(dataDir)) {
-            fs.mkdirSync(dataDir, { recursive: true });
-        }
-    } catch (error: any) {
-        console.error('[RateLimit] Error en ensureDataDirectory:', error);
-        throw error;
+    const dataDir = getDataDir();
+    if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
     }
 }
 
@@ -35,8 +30,7 @@ function readRateLimitData(): Record<string, RateLimitEntry> {
     try {
         const data = fs.readFileSync(RATE_LIMIT_FILE, 'utf-8');
         return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading rate limit file:', error);
+    } catch {
         return {};
     }
 }

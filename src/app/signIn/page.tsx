@@ -42,35 +42,25 @@ function SignInForm() {
                 setError(result.error);
                 setLoading(false);
             } else if (result?.ok) {
+                router.refresh();
                 router.push('/dashboard');
             }
-        } catch (error) {
-            console.error('Sign in error:', error);
+        } catch {
             setError('An error occurred during sign in');
             setLoading(false);
         }
     };
 
     const handleGoogleSignIn = async () => {
-        console.log('[Client] Iniciando login con Google...');
         setError('');
         setLoading(true);
         
         try {
-            const result = await signIn('google', {
+            await signIn('google', {
                 callbackUrl: '/dashboard',
                 redirect: true,
             });
-
-            console.log('[Client] Google signIn result:', result);
-            
-            if (result?.error) {
-                console.error('[Client] Google signIn error:', result.error);
-                setError(`Error al iniciar sesión con Google: ${result.error}`);
-                setLoading(false);
-            }
         } catch (error: any) {
-            console.error('[Client] Google signIn exception:', error);
             setError(`Error al iniciar sesión con Google: ${error?.message || 'Error desconocido'}`);
             setLoading(false);
         }
@@ -83,6 +73,7 @@ function SignInForm() {
         });
 
         if (result?.ok) {
+            router.refresh();
             router.push('/dashboard');
         }
     };
