@@ -5,7 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserByEmail, verifyPassword } from "@/lib/users";
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "@/lib/rateLimit";
 
-const providers = [
+const providers: NextAuthOptions["providers"] = [
     CredentialsProvider({
             name: "Credentials",
             credentials: {
