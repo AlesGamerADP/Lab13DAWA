@@ -2,11 +2,11 @@
 
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import Link from "next/link";
 
-export default function LoginPage() {
+function SignInForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const registered = searchParams.get('registered');
@@ -167,5 +167,22 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="bg-white p-8 rounded-lg shadow-md w-96">
+                    <h1 className="text-2xl text-gray-800 font-bold mb-6 text-center">
+                        Sign In
+                    </h1>
+                    <p className="text-center text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <SignInForm />
+        </Suspense>
     );
 }
