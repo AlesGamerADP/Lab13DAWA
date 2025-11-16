@@ -5,7 +5,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserByEmail, verifyPassword } from "@/lib/users";
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "@/lib/rateLimit";
 
-// Logs de configuración
 console.log('[NextAuth] Configuración inicializada');
 console.log('[NextAuth] NEXTAUTH_URL:', process.env.NEXTAUTH_URL || 'NO CONFIGURADO');
 console.log('[NextAuth] NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'Configurado' : 'NO CONFIGURADO');
@@ -22,7 +21,6 @@ const providers: NextAuthOptions["providers"] = [
                     throw new Error("Email and password are required");
                 }
 
-                // Check rate limit
                 const rateLimitCheck = checkRateLimit(credentials.email);
                 if (!rateLimitCheck.allowed) {
                     const blockedUntil = rateLimitCheck.blockedUntil;
@@ -32,24 +30,20 @@ const providers: NextAuthOptions["providers"] = [
                     throw new Error(`Too many failed attempts. Please try again in ${minutesLeft} minutes.`);
                 }
 
-                // Get user
                 const user = await getUserByEmail(credentials.email);
                 if (!user) {
                     recordFailedAttempt(credentials.email);
                     throw new Error("Invalid email or password");
                 }
 
-                // Verify password
                 const isValidPassword = await verifyPassword(credentials.password, user.password);
                 if (!isValidPassword) {
                     recordFailedAttempt(credentials.email);
                     throw new Error("Invalid email or password");
                 }
 
-                // Reset rate limit on successful login
                 resetRateLimit(credentials.email);
 
-                // Return user object (without password)
                 return {
                     id: user.id,
                     email: user.email,
@@ -59,7 +53,6 @@ const providers: NextAuthOptions["providers"] = [
         }),
 ];
 
-// Add Google provider only if credentials are provided
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('[NextAuth] Google Provider - Configurando provider');
     console.log('[NextAuth] GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Configurado' : 'NO CONFIGURADO');
@@ -72,7 +65,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('[NextAuth] Google Provider - NO configurado (faltan variables de entorno)');
 }
 
-// Add GitHub provider only if credentials are provided
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
     providers.unshift(GitHubProvider({
         clientId: process.env.GITHUB_CLIENT_ID,
@@ -125,9 +117,7 @@ export const authOptions: NextAuthOptions = {
         },
         async redirect({ url, baseUrl }) {
             console.log('[NextAuth] redirect callback - URL:', url, 'BaseURL:', baseUrl);
-            // Allows relative callback URLs
             if (url.startsWith("/")) return `${baseUrl}${url}`;
-            // Allows callback URLs on the same origin
             if (new URL(url).origin === baseUrl) return url;
             return baseUrl;
         },
