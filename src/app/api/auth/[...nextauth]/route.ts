@@ -5,6 +5,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserByEmail, verifyPassword } from "@/lib/users";
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "@/lib/rateLimit";
 
+// Logs de configuración
+console.log('[NextAuth] Configuración inicializada');
+console.log('[NextAuth] NEXTAUTH_URL:', process.env.NEXTAUTH_URL || 'NO CONFIGURADO');
+console.log('[NextAuth] NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'Configurado' : 'NO CONFIGURADO');
+
 const providers: NextAuthOptions["providers"] = [
     CredentialsProvider({
             name: "Credentials",
@@ -56,10 +61,15 @@ const providers: NextAuthOptions["providers"] = [
 
 // Add Google provider only if credentials are provided
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    console.log('[NextAuth] Google Provider - Configurando provider');
+    console.log('[NextAuth] GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Configurado' : 'NO CONFIGURADO');
+    console.log('[NextAuth] GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Configurado' : 'NO CONFIGURADO');
     providers.unshift(GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }));
+} else {
+    console.log('[NextAuth] Google Provider - NO configurado (faltan variables de entorno)');
 }
 
 // Add GitHub provider only if credentials are provided
@@ -79,9 +89,26 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
+    debug: process.env.NODE_ENV === 'development',
     callbacks: {
-        async jwt({ token, user }) {
+        async signIn({ user, account, profile }) {
+            console.log('[NextAuth] signIn callback - Account:', account?.provider);
+            console.log('[NextAuth] signIn callback - User:', user?.email);
+            if (account?.provider === 'google') {
+                console.log('[NextAuth] Google login - Account details:', {
+                    provider: account.provider,
+                    type: account.type,
+                    email: user.email
+                });
+            }
+            return true;
+        },
+        async jwt({ token, user, account }) {
+            if (account) {
+                console.log('[NextAuth] jwt callback - Account provider:', account.provider);
+            }
             if (user) {
+                console.log('[NextAuth] jwt callback - User:', user.email);
                 token.id = user.id;
                 token.email = user.email;
                 token.name = user.name;
@@ -95,6 +122,14 @@ export const authOptions: NextAuthOptions = {
                 session.user.name = token.name as string;
             }
             return session;
+        },
+        async redirect({ url, baseUrl }) {
+            console.log('[NextAuth] redirect callback - URL:', url, 'BaseURL:', baseUrl);
+            // Allows relative callback URLs
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            // Allows callback URLs on the same origin
+            if (new URL(url).origin === baseUrl) return url;
+            return baseUrl;
         },
     },
 }

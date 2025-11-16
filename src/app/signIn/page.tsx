@@ -52,13 +52,28 @@ function SignInForm() {
     };
 
     const handleGoogleSignIn = async () => {
-        const result = await signIn('google', {
-            callbackUrl: '/dashboard',
-            redirect: false,
-        });
+        console.log('[Client] Iniciando login con Google...');
+        setError('');
+        setLoading(true);
+        
+        try {
+            const result = await signIn('google', {
+                callbackUrl: '/dashboard',
+                redirect: true, // Cambiar a true para OAuth - redirect debe ser true
+            });
 
-        if (result?.ok) {
-            router.push('/dashboard');
+            console.log('[Client] Google signIn result:', result);
+            
+            // Si redirect es true, esto no se ejecutará porque redirigirá automáticamente
+            if (result?.error) {
+                console.error('[Client] Google signIn error:', result.error);
+                setError(`Error al iniciar sesión con Google: ${result.error}`);
+                setLoading(false);
+            }
+        } catch (error: any) {
+            console.error('[Client] Google signIn exception:', error);
+            setError(`Error al iniciar sesión con Google: ${error?.message || 'Error desconocido'}`);
+            setLoading(false);
         }
     };
 
@@ -143,10 +158,11 @@ function SignInForm() {
 
                 <button
                     onClick={handleGoogleSignIn}
-                    className="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-black transition flex items-center justify-center gap-2 mb-3"
+                    disabled={loading}
+                    className="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-black transition flex items-center justify-center gap-2 mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <FaGoogle />
-                    Continue with Google
+                    {loading ? 'Cargando...' : 'Continue with Google'}
                 </button>
 
                 <button
