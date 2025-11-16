@@ -22,9 +22,9 @@ function ensureDataDirectory() {
         if (!fs.existsSync(dataDir)) {
             console.log('[Users] Creando directorio data...');
             fs.mkdirSync(dataDir, { recursive: true });
-            console.log('[Users] ✅ Directorio creado exitosamente');
+            console.log('[Users] Directorio creado exitosamente');
         } else {
-            console.log('[Users] ✅ Directorio ya existe');
+            console.log('[Users] Directorio ya existe');
         }
         
         const stats = fs.statSync(dataDir);
@@ -33,7 +33,7 @@ function ensureDataDirectory() {
             mode: stats.mode
         });
     } catch (error: any) {
-        console.error('[Users] ❌ Error en ensureDataDirectory:', error);
+        console.error('[Users] Error en ensureDataDirectory:', error);
         console.error('[Users] Error message:', error?.message);
         console.error('[Users] Error code:', error?.code);
         throw error;
@@ -62,19 +62,18 @@ function writeUsers(users: User[]): void {
         
         console.log('[Users] Ruta del archivo:', USERS_FILE);
         console.log('[Users] Archivo existe?', fs.existsSync(USERS_FILE));
-        console.log('[Users] Directorio es escribible?', fs.accessSync ? 'checking...' : 'no check');
         
         const jsonData = JSON.stringify(users, null, 2);
         console.log('[Users] Tamaño del JSON:', jsonData.length, 'caracteres');
         
         console.log('[Users] Escribiendo archivo...');
         fs.writeFileSync(USERS_FILE, jsonData);
-        console.log('[Users] ✅ Archivo escrito exitosamente');
+        console.log('[Users] Archivo escrito exitosamente');
         
         const stats = fs.statSync(USERS_FILE);
         console.log('[Users] Archivo creado - Tamaño:', stats.size, 'bytes');
     } catch (error: any) {
-        console.error('[Users] ❌ Error escribiendo archivo');
+        console.error('[Users] Error escribiendo archivo');
         console.error('[Users] Error completo:', error);
         console.error('[Users] Error type:', typeof error);
         console.error('[Users] Error name:', error?.name);
