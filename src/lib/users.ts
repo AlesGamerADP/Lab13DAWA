@@ -2,7 +2,12 @@ import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
 
-const USERS_FILE = path.join(process.cwd(), 'data', 'users.json');
+const getDataDir = () => {
+    const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    return isVercel ? '/tmp/data' : path.join(process.cwd(), 'data');
+};
+
+const USERS_FILE = path.join(getDataDir(), 'users.json');
 
 export interface User {
     id: string;
@@ -14,9 +19,10 @@ export interface User {
 
 function ensureDataDirectory() {
     try {
-        const dataDir = path.join(process.cwd(), 'data');
+        const dataDir = getDataDir();
         console.log('[Users] ensureDataDirectory - Directorio:', dataDir);
         console.log('[Users] process.cwd():', process.cwd());
+        console.log('[Users] VERCEL:', process.env.VERCEL);
         console.log('[Users] Directorio existe?', fs.existsSync(dataDir));
         
         if (!fs.existsSync(dataDir)) {

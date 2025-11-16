@@ -1,7 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-const RATE_LIMIT_FILE = path.join(process.cwd(), 'data', 'rateLimit.json');
+const getDataDir = () => {
+    const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    return isVercel ? '/tmp/data' : path.join(process.cwd(), 'data');
+};
+
+const RATE_LIMIT_FILE = path.join(getDataDir(), 'rateLimit.json');
 
 interface RateLimitEntry {
     email: string;
@@ -10,15 +15,18 @@ interface RateLimitEntry {
     blockedUntil?: string;
 }
 
-// Ensure data directory exists
 function ensureDataDirectory() {
-    const dataDir = path.join(process.cwd(), 'data');
-    if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
+    try {
+        const dataDir = getDataDir();
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+        }
+    } catch (error: any) {
+        console.error('[RateLimit] Error en ensureDataDirectory:', error);
+        throw error;
     }
 }
 
-// Read rate limit data
 function readRateLimitData(): Record<string, RateLimitEntry> {
     ensureDataDirectory();
     if (!fs.existsSync(RATE_LIMIT_FILE)) {
@@ -33,14 +41,13 @@ function readRateLimitData(): Record<string, RateLimitEntry> {
     }
 }
 
-// Write rate limit data
 function writeRateLimitData(data: Record<string, RateLimitEntry>): void {
     ensureDataDirectory();
     fs.writeFileSync(RATE_LIMIT_FILE, JSON.stringify(data, null, 2));
 }
 
-const MAX_ATTEMPTS = 5;
-const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS = 3;
+const BLOCK_DURATION_MS = 15 * 60 * 1000;
 
 export function checkRateLimit(email: string): { allowed: boolean; remainingAttempts?: number; blockedUntil?: Date } {
     const data = readRateLimitData();
@@ -50,19 +57,16 @@ export function checkRateLimit(email: string): { allowed: boolean; remainingAtte
         return { allowed: true, remainingAttempts: MAX_ATTEMPTS };
     }
     
-    // Check if user is blocked
     if (entry.blockedUntil) {
         const blockedUntil = new Date(entry.blockedUntil);
         if (blockedUntil > new Date()) {
             return { allowed: false, blockedUntil };
         }
-        // Block expired, reset
         delete data[email];
         writeRateLimitData(data);
         return { allowed: true, remainingAttempts: MAX_ATTEMPTS };
     }
     
-    // Check if max attempts reached
     if (entry.attempts >= MAX_ATTEMPTS) {
         const blockedUntil = new Date(Date.now() + BLOCK_DURATION_MS);
         entry.blockedUntil = blockedUntil.toISOString();
@@ -80,7 +84,6 @@ export function recordFailedAttempt(email: string): void {
     entry.attempts += 1;
     entry.lastAttempt = new Date().toISOString();
     
-    // If max attempts reached, block the user
     if (entry.attempts >= MAX_ATTEMPTS) {
         entry.blockedUntil = new Date(Date.now() + BLOCK_DURATION_MS).toISOString();
     }
